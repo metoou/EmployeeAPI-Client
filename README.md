@@ -1,4 +1,4 @@
-# otc.app
+# EmployeesAPI-Client
 
 ## Project setup
 ```
