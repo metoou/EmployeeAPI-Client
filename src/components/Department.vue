@@ -14,7 +14,7 @@
             <td class="td-button">
               <button
                 class="btn btn-primary"
-                @click="onDepartmentInfo(item.id, item.name, item.salary)">
+                @click="onDepartmentInfo(item.id, item.name)">
                 Информация
               </button>
             </td>
@@ -28,21 +28,34 @@
         <div class="d-block text-center">
           <b-card title="Информация об отделе">
             <div class="mb-3">
-              <label for="name" class="form-label">ФИО</label>
+              <label for="name" class="form-label">Отдел</label>
               <input
                 class="form-control"
                 type="text"
-                v-model="name"
+                v-model="departmentName"
                 id="name"/>
             </div>
             <div class="mb-3">
+              <label class="form-label">Количество сотрудников:  </label>
+              <label class="form-label">{{employeesCount}}</label>
+              <select
+                class="form-control">
+                <option
+                  v-for="item in responseData"
+                  :key="item.id"
+                  v-bind:value="item.id">
+                  {{ item.name }} / Зарплата: {{item.salary}}
+                </option>
+              </select>
+            </div>
+            <div class="mb-3">
               <label for="salary" class="form-label">Средняя зарплата</label>
-              <input
+            </div>
+            <input
                 class="form-control"
                 type="text"
-                v-model="salary"
-                id="salary"/>
-            </div>
+                v-model="avrSalary"
+                id="name"/>
           </b-card>
         </div>
       </form>
@@ -51,20 +64,19 @@
 </template>
 
 <script>
-import axios from "axios";
+import {HTTP} from "@/axios.js";
 
 export default {
   name: "Department",
   data() {
     return {
-      employees: [],
+      employeesCount: "",
       departments: [],
+      responseData: [],
       name: "",
       id: "",
-      salary: "",
-      departmentId: "",
-      departmentName: "",
-      updateMode: false,
+      avrSalary: 0,
+      sum: 0,
     };
   },
   created() {
@@ -73,35 +85,33 @@ export default {
   methods: {
     async GetDepartments() {
       try {
-        const response = await axios.get(
-          "https://localhost:5001/api/v1/Departments"
+        const response = await HTTP.get(
+          "Departments"
         );
         this.departments = response.data;
+        console.log( this.departments);
       } catch (error) {
         console.error(error);
       }
     },
 
-    async GetEmployeestByDepartmentId(id) {
-      try {
-        const response = await axios.get(
-          "https://localhost:5001/api/v1/Employees/department/" + id
-        );
-        this.departmentName = response.data.name;
-        return this.departmentName;
-      } catch (error) {
-        console.error(error);
-      }
-    },
-
-    onDepartmentInfo: function (id, name, salary) {
-      this.id = id;
-      this.name = name;
-      this.salary = salary;
-      this.$bvModal.show("bv-modal-departmentInfo");
-    },
-  },
-};
+      async onDepartmentInfo (id, name) {
+        this.avrSalary = 0;
+        this.sum = 0;
+        this.departmentName = name;
+        const response = await HTTP.get(
+          "Employees/department/" + id
+        )
+        this.responseData = response.data;
+        this.employeesCount = this.responseData.length;
+          for (let i = 0; i < this.employeesCount; i++) {
+            this.sum += this.responseData[i].salary
+          }
+        this.avrSalary = this.sum/this.employeesCount;
+        this.$bvModal.show("bv-modal-departmentInfo");
+    },  
+  }
+}
 </script>
 
 <style>

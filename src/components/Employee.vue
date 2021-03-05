@@ -25,7 +25,7 @@
               </button>
 
               <button
-                class="btn btn-primary"
+                class="btn btn-success"
                 @click="
                   onUpdate(item.id, item.name, item.salary, item.departmentId)">
                 Редактировать
@@ -73,7 +73,7 @@
               </select>
             </div>
             <button
-              class="btn btn-primary"
+              class="btn btn-success"
               block
               @click="$bvModal.hide('bv-modal-employee')">
               Добавить
@@ -168,7 +168,7 @@
 </template>
 
 <script>
-import axios from "axios";
+import {HTTP} from "@/axios.js";
 
 export default {
   name: "Employee",
@@ -191,7 +191,7 @@ export default {
     async AddEmployee(id) {
       if (this.updateMode == false) {
         try {
-          await axios.post("https://localhost:5001/api/v1/Employees", {
+          await HTTP.post("Employees", {
             name: this.name,
             salary: parseFloat(this.salary),
             departmentId: this.departmentId,
@@ -202,7 +202,7 @@ export default {
         this.GetEmployees();
       } else {
         try {
-          await axios.put("https://localhost:5001/api/v1/Employees/" + id, {
+          await HTTP.put("Employees/" + id, {
             name: this.name,
             salary: parseFloat(this.salary),
             departmentId: this.departmentId,
@@ -216,8 +216,8 @@ export default {
 
     async GetEmployees() {
       try {
-        const response = await axios.get(
-          "https://localhost:5001/api/v1/Employees"
+        const response = await HTTP.get(
+          "Employees"
         );
         this.employees = response.data;
       } catch (error) {
@@ -227,8 +227,8 @@ export default {
 
     async GetDepartments() {
       try {
-        const response = await axios.get(
-          "https://localhost:5001/api/v1/Departments"
+        const response = await HTTP.get(
+          "Departments"
         );
         this.departments = response.data;
       } catch (error) {
@@ -238,7 +238,7 @@ export default {
 
     async DeleteEmployee(id) {
       try {
-        await axios.delete("https://localhost:5001/api/v1/Employees/" + id);
+        await HTTP.delete("Employees/" + id);
       } catch (error) {
         console.error(error);
       }
@@ -268,18 +268,6 @@ export default {
       this.salary = salary;
       this.departmentId = departmentId;
       this.$bvModal.show("bv-modal-employeeInfo");
-    },
-
-    async GetDepartmentById(departmentId) {
-      try {
-        const response = await axios.get(
-          "https://localhost:5001/api/v1/Departments/" + departmentId
-        );
-        this.departmentName = response.data.name;
-        return this.departmentName;
-      } catch (error) {
-        console.error(error);
-      }
     },
   },
 };
